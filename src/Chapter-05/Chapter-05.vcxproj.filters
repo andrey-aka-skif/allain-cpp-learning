@@ -15,15 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="task-02.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="task-03.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="task-04.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="task-01.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -34,6 +25,12 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="task-04.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="task-05.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="task-06.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
