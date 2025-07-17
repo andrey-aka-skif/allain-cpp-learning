@@ -33,6 +33,7 @@ void show_help();
 void show_current_sign();
 char sign_to_char(Sign sign);
 std::string sign_with_cursor_to_string(int x, int y, Sign sign);
+bool check_line(Sign a, Sign b, Sign c);
 void check_win();
 void show_final_message();
 
@@ -49,28 +50,30 @@ int main() {
 	}
 }
 
-Sign cell_0_0 = EMPTY;
-Sign cell_0_1 = EMPTY;
-Sign cell_0_2 = EMPTY;
+namespace Game {
+	Sign cell_0_0 = EMPTY;
+	Sign cell_0_1 = EMPTY;
+	Sign cell_0_2 = EMPTY;
 
-Sign cell_1_0 = EMPTY;
-Sign cell_1_1 = EMPTY;
-Sign cell_1_2 = EMPTY;
+	Sign cell_1_0 = EMPTY;
+	Sign cell_1_1 = EMPTY;
+	Sign cell_1_2 = EMPTY;
 
-Sign cell_2_0 = EMPTY;
-Sign cell_2_1 = EMPTY;
-Sign cell_2_2 = EMPTY;
+	Sign cell_2_0 = EMPTY;
+	Sign cell_2_1 = EMPTY;
+	Sign cell_2_2 = EMPTY;
 
-int cursor_row = 1;
-int cursor_column = 1;
+	int cursor_row = 1;
+	int cursor_column = 1;
 
-Sign current_sign = X;
+	Sign current_sign = X;
 
-bool is_play = true;
+	bool is_play = true;
 
-int step_count = 0;
+	int step_count = 0;
 
-std::string final_message;
+	std::string final_message;
+}
 
 void run_tic_tac_game() {
 	bool handle_input_result = true;
@@ -88,118 +91,122 @@ void run_tic_tac_game() {
 		show_help();
 		show_current_sign();
 		draw_field();
-	} while (handle_input_result && is_play);
+	} while (handle_input_result && Game::is_play);
 
 	show_final_message();
 }
 
 void show_final_message() {
-	std::cout << std::endl << final_message << std::endl;
+	std::cout << std::endl << Game::final_message << std::endl;
 }
 
 #pragma region Handle Logic
 void check_win() {
-	step_count++;
-	if (step_count >= 9) {
-		is_play = false;
-		final_message = "Ничья";
+	Game::step_count++;
+	if (Game::step_count >= 9) {
+		Game::is_play = false;
+		Game::final_message = "Ничья";
 		return;
 	}
 
 	// Проверка горизонталей
-	if (cell_0_0 != EMPTY && cell_0_0 == cell_0_1 && cell_0_1 == cell_0_2) {
-		is_play = false;
+	if (check_line(Game::cell_0_0, Game::cell_0_1, Game::cell_0_2)) {
+		Game::is_play = false;
 	}
-	else if (cell_1_0 != EMPTY && cell_1_0 == cell_1_1 && cell_1_1 == cell_1_2) {
-		is_play = false;
+	else if (check_line(Game::cell_1_0, Game::cell_1_1, Game::cell_1_2)) {
+		Game::is_play = false;
 	}
-	else if (cell_2_0 != EMPTY && cell_2_0 == cell_2_1 && cell_2_1 == cell_2_2) {
-		is_play = false;
+	else if (check_line(Game::cell_2_0, Game::cell_2_1, Game::cell_2_2)) {
+		Game::is_play = false;
 	}
 
 	// Проверка вертикалей
-	else if (cell_0_0 != EMPTY && cell_0_0 == cell_1_0 && cell_1_0 == cell_2_0) {
-		is_play = false;
+	else if (check_line(Game::cell_0_0, Game::cell_1_0, Game::cell_2_0)) {
+		Game::is_play = false;
 	}
-	else if (cell_0_1 != EMPTY && cell_0_1 == cell_1_1 && cell_1_1 == cell_2_1) {
-		is_play = false;
+	else if (check_line(Game::cell_0_1, Game::cell_1_1, Game::cell_2_1)) {
+		Game::is_play = false;
 	}
-	else if (cell_0_2 != EMPTY && cell_0_2 == cell_1_2 && cell_1_2 == cell_2_2) {
-		is_play = false;
+	else if (check_line(Game::cell_0_2, Game::cell_1_2, Game::cell_2_2)) {
+		Game::is_play = false;
 	}
 
 	// Проверка диагоналей
-	else if (cell_0_0 != EMPTY && cell_0_0 == cell_1_1 && cell_1_1 == cell_2_2) {
-		is_play = false;
+	else if (check_line(Game::cell_0_0, Game::cell_1_1, Game::cell_2_2)) {
+		Game::is_play = false;
 	}
-	else if (cell_0_2 != EMPTY && cell_0_2 == cell_1_1 && cell_1_1 == cell_2_0) {
-		is_play = false;
+	else if (check_line(Game::cell_0_2, Game::cell_1_1, Game::cell_2_0)) {
+		Game::is_play = false;
 	}
 
-	if (!is_play) {
-		final_message = std::string("Победа: ") + sign_to_char(current_sign);
+	if (!Game::is_play) {
+		Game::final_message = std::string("Победа: ") + sign_to_char(Game::current_sign);
 	}
+}
+
+bool check_line(Sign a, Sign b, Sign c) {
+	return a != EMPTY && a == b && b == c;
 }
 #pragma endregion
 
 #pragma region Handle Control
 void handle_up() {
-	if (cursor_row > 0)
-		cursor_row--;
+	if (Game::cursor_row > 0)
+		Game::cursor_row--;
 }
 
 void handle_down() {
-	if (cursor_row < 2)
-		cursor_row++;
+	if (Game::cursor_row < 2)
+		Game::cursor_row++;
 }
 
 void handle_left() {
-	if (cursor_column > 0)
-		cursor_column--;
+	if (Game::cursor_column > 0)
+		Game::cursor_column--;
 }
 
 void handle_right() {
-	if (cursor_column < 2)
-		cursor_column++;
+	if (Game::cursor_column < 2)
+		Game::cursor_column++;
 }
 
 bool try_select() {
-	if (cursor_row == 0 && cursor_column == 0 && cell_0_0 == EMPTY) {
-		cell_0_0 = current_sign;
+	if (Game::cursor_row == 0 && Game::cursor_column == 0 && Game::cell_0_0 == EMPTY) {
+		Game::cell_0_0 = Game::current_sign;
 		return true;
 	}
-	if (cursor_row == 0 && cursor_column == 1 && cell_0_1 == EMPTY) {
-		cell_0_1 = current_sign;
+	if (Game::cursor_row == 0 && Game::cursor_column == 1 && Game::cell_0_1 == EMPTY) {
+		Game::cell_0_1 = Game::current_sign;
 		return true;
 	}
-	if (cursor_row == 0 && cursor_column == 2 && cell_0_2 == EMPTY) {
-		cell_0_2 = current_sign;
-		return true;
-	}
-
-	if (cursor_row == 1 && cursor_column == 0 && cell_1_0 == EMPTY) {
-		cell_1_0 = current_sign;
-		return true;
-	}
-	if (cursor_row == 1 && cursor_column == 1 && cell_1_1 == EMPTY) {
-		cell_1_1 = current_sign;
-		return true;
-	}
-	if (cursor_row == 1 && cursor_column == 2 && cell_1_2 == EMPTY) {
-		cell_1_2 = current_sign;
+	if (Game::cursor_row == 0 && Game::cursor_column == 2 && Game::cell_0_2 == EMPTY) {
+		Game::cell_0_2 = Game::current_sign;
 		return true;
 	}
 
-	if (cursor_row == 2 && cursor_column == 0 && cell_2_0 == EMPTY) {
-		cell_2_0 = current_sign;
+	if (Game::cursor_row == 1 && Game::cursor_column == 0 && Game::cell_1_0 == EMPTY) {
+		Game::cell_1_0 = Game::current_sign;
 		return true;
 	}
-	if (cursor_row == 2 && cursor_column == 1 && cell_2_1 == EMPTY) {
-		cell_2_1 = current_sign;
+	if (Game::cursor_row == 1 && Game::cursor_column == 1 && Game::cell_1_1 == EMPTY) {
+		Game::cell_1_1 = Game::current_sign;
 		return true;
 	}
-	if (cursor_row == 2 && cursor_column == 2 && cell_2_2 == EMPTY) {
-		cell_2_2 = current_sign;
+	if (Game::cursor_row == 1 && Game::cursor_column == 2 && Game::cell_1_2 == EMPTY) {
+		Game::cell_1_2 = Game::current_sign;
+		return true;
+	}
+
+	if (Game::cursor_row == 2 && Game::cursor_column == 0 && Game::cell_2_0 == EMPTY) {
+		Game::cell_2_0 = Game::current_sign;
+		return true;
+	}
+	if (Game::cursor_row == 2 && Game::cursor_column == 1 && Game::cell_2_1 == EMPTY) {
+		Game::cell_2_1 = Game::current_sign;
+		return true;
+	}
+	if (Game::cursor_row == 2 && Game::cursor_column == 2 && Game::cell_2_2 == EMPTY) {
+		Game::cell_2_2 = Game::current_sign;
 		return true;
 	}
 
@@ -207,10 +214,10 @@ bool try_select() {
 }
 
 void inverse_current_sign() {
-	if (current_sign == X)
-		current_sign = O;
-	else if (current_sign == O)
-		current_sign = X;
+	if (Game::current_sign == X)
+		Game::current_sign = O;
+	else if (Game::current_sign == O)
+		Game::current_sign = X;
 }
 #pragma endregion
 
@@ -250,29 +257,30 @@ Input get_input() {
 
 	switch (key)
 	{
-	case 'w'://119
-	case 'W'://87
+	case 'w':
+	case 'W':
 		return UP;
-	case 's'://115
-	case 'S'://83
+	case 's':
+	case 'S':
 		return DOWN;
-	case 'a'://97
-	case 'A'://65
+	case 'a':
+	case 'A':
 		return LEFT;
-	case 'd'://100
-	case 'D'://68
+	case 'd':
+	case 'D':
 		return RIGHT;
-	case ' '://32
+	case ' ':
 		return SELECT;
-	case 'q'://113
-	case 'Q'://81
+	case 'q':
+	case 'Q':
 		return QUITE;
 	default:
 		break;
 	}
 
 	// Стрелки (возвращают два кода: 224 + код стрелки)
-	if (key == 224 || key == 0) {
+	const int ARROW_PREFIX = 224;
+	if (key == ARROW_PREFIX || key == 0) {
 		return get_arrow_input();
 	}
 
@@ -281,16 +289,21 @@ Input get_input() {
 
 Input get_arrow_input() {
 	// Стрелки (возвращают два кода: 224 + код стрелки)
+	const int UP_ARROW = 72;
+	const int DOWN_ARROW = 80;
+	const int LEFT_ARROW = 75;
+	const int RIGHT_ARROW = 77;
+
 	int second_key = _getch();  // Читаем второй код
 	switch (second_key)
 	{
-	case 72:
+	case UP_ARROW:
 		return UP;
-	case 80:
+	case DOWN_ARROW:
 		return DOWN;
-	case 75:
+	case LEFT_ARROW:
 		return LEFT;
-	case 77:
+	case RIGHT_ARROW:
 		return RIGHT;
 	default:
 		return UNKNOWN;
@@ -300,11 +313,15 @@ Input get_arrow_input() {
 
 #pragma region Handle Drow
 void clear() {
+#ifdef _WIN32
 	system("cls");
+#else
+	system("clear");
+#endif
 }
 
 void show_current_sign() {
-	std::cout << "Сейчас ходит: " << sign_to_char(current_sign) << std::endl;
+	std::cout << "Сейчас ходит: " << sign_to_char(Game::current_sign) << std::endl;
 }
 
 void show_help() {
@@ -318,75 +335,48 @@ void show_help() {
 }
 
 void draw_field() {
+
 	// линия 0
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << std::endl;
+	std::cout << "┌───┬───┬───┐" << std::endl;
 
 	// строка 0
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(0, 0, cell_0_0);
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(1, 0, cell_0_1);
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(2, 0, cell_0_2);
-	std::cout << "|";
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(0, 0, Game::cell_0_0);
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(1, 0, Game::cell_0_1);
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(2, 0, Game::cell_0_2);
+	std::cout << "│";
 	std::cout << std::endl;
 
 	// линия 1
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << std::endl;
+	std::cout << "├───┼───┼───┤" << std::endl;
 
 	// строка 1
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(0, 1, cell_1_0);
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(1, 1, cell_1_1);
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(2, 1, cell_1_2);
-	std::cout << "|";
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(0, 1, Game::cell_1_0);
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(1, 1, Game::cell_1_1);
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(2, 1, Game::cell_1_2);
+	std::cout << "│";
 	std::cout << std::endl;
 
 	// линия 2
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << std::endl;
+	std::cout << "├───┼───┼───┤" << std::endl;
 
 	// строка 2
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(0, 2, cell_2_0);
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(1, 2, cell_2_1);
-	std::cout << "|";
-	std::cout << sign_with_cursor_to_string(2, 2, cell_2_2);
-	std::cout << "|";
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(0, 2, Game::cell_2_0);
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(1, 2, Game::cell_2_1);
+	std::cout << "│";
+	std::cout << sign_with_cursor_to_string(2, 2, Game::cell_2_2);
+	std::cout << "│";
 	std::cout << std::endl;
 
 	// линия 3
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << "---";
-	std::cout << "|";
-	std::cout << std::endl;
+	std::cout << "└───┴───┴───┘" << std::endl;
 }
 
 char sign_to_char(Sign sign) {
@@ -402,7 +392,7 @@ char sign_to_char(Sign sign) {
 }
 
 std::string sign_with_cursor_to_string(int column, int row, Sign sign) {
-	if (row == cursor_row && column == cursor_column)
+	if (row == Game::cursor_row && column == Game::cursor_column)
 		return std::string("[") + sign_to_char(sign) + "]";
 
 	return std::string(" ") + sign_to_char(sign) + " ";
