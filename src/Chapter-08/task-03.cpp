@@ -30,7 +30,7 @@ namespace NumberGuesserGame {
 	int const DEFAULT_LOW_BOUND = 1;
 	int const DEFAULT_HIGH_BOUND = 100;
 
-	enum Result { UNKNOWN, NUMBER_IS_LESS_THEN_SECRET, NUMBER_IS_MORE_THEN_SECRET, EQUALS };
+	enum Result { UNKNOWN, NUMBER_IS_LESS_THAN_SECRET, NUMBER_IS_MORE_THAN_SECRET, EQUALS };
 
 	int secret_number = 0;
 	int low_bound = DEFAULT_LOW_BOUND;
@@ -50,14 +50,14 @@ namespace NumberGuesserGame {
 
 	static Result get_guess_result(int guess) {
 		if (guess < secret_number)
-			return NUMBER_IS_LESS_THEN_SECRET;
+			return NUMBER_IS_LESS_THAN_SECRET;
 		else if (guess > secret_number)
-			return NUMBER_IS_MORE_THEN_SECRET;
+			return NUMBER_IS_MORE_THAN_SECRET;
 		else
 			return EQUALS;
 	}
 
-	static void run_number_guesser_game() {
+	static void run_human_guesser() {
 		NumberGuesserGame::init_game();
 
 		std::cout
@@ -80,8 +80,6 @@ namespace NumberGuesserGame {
 			try
 			{
 				user_guess_number = CustomInput::int_cin();
-				result = get_guess_result(user_guess_number);
-				attempt_count++;
 			}
 			catch (const std::exception&)
 			{
@@ -91,14 +89,27 @@ namespace NumberGuesserGame {
 				continue;
 			}
 
-			if (result == NUMBER_IS_LESS_THEN_SECRET) {
+			if (user_guess_number < low_bound || user_guess_number > high_bound) {
+				std::cout
+					<< "Число должно быть от "
+					<< low_bound
+					<< " до "
+					<< high_bound
+					<< std::endl;
+				continue;
+			}
+
+			result = get_guess_result(user_guess_number);
+			attempt_count++;
+
+			if (result == NUMBER_IS_LESS_THAN_SECRET) {
 				std::cout
 					<< "Слишком мало! (число попыток: "
 					<< attempt_count
 					<< ")."
 					<< std::endl;
 			}
-			else if (result == NUMBER_IS_MORE_THEN_SECRET) {
+			else if (result == NUMBER_IS_MORE_THAN_SECRET) {
 				std::cout
 					<< "Слишком много! (число попыток: "
 					<< attempt_count
@@ -119,11 +130,11 @@ namespace NumberGuesserGame {
 
 namespace NumberPicker {
 	static int get_guess(int down_limit, int up_limit) {
-		return NumberGuesserGame::get_rnd_value(down_limit, up_limit);
+		return (down_limit + up_limit) / 2;
 	}
 
-	static void run_number_picker() {
-		NumberGuesserGame::init_game();
+	static void run_ai_guesser() {
+		NumberGuesserGame::init_game(NumberGuesserGame::DEFAULT_LOW_BOUND, NumberGuesserGame::DEFAULT_HIGH_BOUND);
 
 		std::cout
 			<< "Загаданное число: "
@@ -149,11 +160,19 @@ namespace NumberPicker {
 				<< guess
 				<< std::endl;
 
-			if (result == NumberGuesserGame::NUMBER_IS_MORE_THEN_SECRET)
+			if (result == NumberGuesserGame::NUMBER_IS_MORE_THAN_SECRET)
 				high_bound = guess - 1;
-			else if (result == NumberGuesserGame::NUMBER_IS_LESS_THEN_SECRET)
+			else if (result == NumberGuesserGame::NUMBER_IS_LESS_THAN_SECRET)
 				low_bound = guess + 1;
 		}
+
+		std::cout
+			<< "Число "
+			<< NumberGuesserGame::secret_number
+			<< " угадано за "
+			<< attempt_count
+			<< " попыток."
+			<< std::endl;
 	}
 }
 
@@ -162,7 +181,7 @@ int main() {
 
 	try
 	{
-		NumberPicker::run_number_picker();
+		NumberPicker::run_ai_guesser();
 	}
 	catch (const std::exception& e)
 	{
