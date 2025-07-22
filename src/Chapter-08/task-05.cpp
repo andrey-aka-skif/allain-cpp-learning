@@ -19,11 +19,12 @@ void get_five_cards();
 int get_rnd_value(int low, int high);
 int get_uniq_rnd_card();
 static bool check_uniq(int value);
-std::string getCardName(int card_number);
+std::string map_card_name(int card_number);
 void show_player_cards();
 void replace_card(int card_number_to_replace);
 void show_result();
 void add_card_to_discard(int card_number);
+void sort_cards();
 
 namespace CustomInput {
 	static int int_cin() {
@@ -66,6 +67,7 @@ int discard_card_3 = 0;
 int const MAX_REPLACE_COUNT = 3;
 
 void run_poker_game() {
+	srand(time(NULL));
 
 	std::cout
 		<< "Играем."
@@ -74,7 +76,7 @@ void run_poker_game() {
 		<< std::endl;
 
 	get_five_cards();
-
+	sort_cards();
 	show_player_cards();
 
 	int card_number_to_replace = 0;
@@ -105,14 +107,15 @@ void run_poker_game() {
 		}
 
 		replace_card(card_number_to_replace);
+		sort_cards();
+
+		std::cout << "Новые карты игрока:" << std::endl;
+		show_player_cards();
 
 		replace_count++;
 
 		if (replace_count >= 3)
 			break;
-
-		std::cout << "Новые карты игрока:" << std::endl;
-		show_player_cards();
 	}
 
 	std::cout << "Результат:" << std::endl;
@@ -121,16 +124,11 @@ void run_poker_game() {
 
 void get_five_cards()
 {
-	card_1 = 1;
-	card_2 = 14;
-	card_3 = 27;
-	card_4 = 5;
-	card_5 = 40;
-	//card_1 = get_uniq_rnd_card();
-	//card_2 = get_uniq_rnd_card();
-	//card_3 = get_uniq_rnd_card();
-	//card_4 = get_uniq_rnd_card();
-	//card_5 = get_uniq_rnd_card();
+	card_1 = get_uniq_rnd_card();
+	card_2 = get_uniq_rnd_card();
+	card_3 = get_uniq_rnd_card();
+	card_4 = get_uniq_rnd_card();
+	card_5 = get_uniq_rnd_card();
 }
 
 static int get_uniq_rnd_card() {
@@ -173,7 +171,7 @@ static int get_rnd_value(int low, int high) {
 	return rand() % (high - low + 1) + low;
 }
 
-static std::string getCardName(int card_number) {
+static std::string map_card_name(int card_number) {
 	// Проверяем, что индекс в диапазоне 1..52
 	if (card_number < 1 || card_number > 52) {
 		throw std::out_of_range("Карты с таким индексом не существует");
@@ -210,21 +208,21 @@ static std::string getCardName(int card_number) {
 
 	// Определяем масть
 	switch (suit) {
-	case 0: cardName += "пик"; break;
-	case 1: cardName += "червей"; break;
-	case 2: cardName += "бубен"; break;
-	case 3: cardName += "треф"; break;
+	case 0: cardName += "пик ♠"; break;
+	case 1: cardName += "червей ♥"; break;
+	case 2: cardName += "бубен ♦"; break;
+	case 3: cardName += "треф ♣"; break;
 	}
 
 	return cardName;
 }
 
 static void show_player_cards() {
-	std::cout << "1) " << getCardName(card_1) << std::endl;
-	std::cout << "2) " << getCardName(card_2) << std::endl;
-	std::cout << "3) " << getCardName(card_3) << std::endl;
-	std::cout << "4) " << getCardName(card_4) << std::endl;
-	std::cout << "5) " << getCardName(card_5) << std::endl;
+	std::cout << "1) " << map_card_name(card_1) << std::endl;
+	std::cout << "2) " << map_card_name(card_2) << std::endl;
+	std::cout << "3) " << map_card_name(card_3) << std::endl;
+	std::cout << "4) " << map_card_name(card_4) << std::endl;
+	std::cout << "5) " << map_card_name(card_5) << std::endl;
 }
 
 static void replace_card(int card_number_to_replace) {
@@ -397,6 +395,16 @@ static bool check_flush() {
 static bool check_straight() {
 	// Стрит – 5 карт по порядку, масти разные
 
+	int val1 = ((card_1 - 1) % 13) + 1;
+	int val2 = ((card_2 - 1) % 13) + 1;
+	int val3 = ((card_3 - 1) % 13) + 1;
+	int val4 = ((card_4 - 1) % 13) + 1;
+	int val5 = ((card_5 - 1) % 13) + 1;
+
+	// Проверяем: val1, val1+1, val1+2, val1+3, val1+4
+	if (val2 == val1 + 1 && val3 == val1 + 2 && val4 == val1 + 3 && val5 == val1 + 4) {
+		return true;
+	}
 	return false;
 }
 
@@ -408,7 +416,43 @@ static bool check_straight() {
 static bool check_three_of_a_kind() {
 	// Тройка – 3 карты одного достоинства
 
-	return false;
+	int val1 = ((card_1 - 1) % 13) + 1;
+	int val2 = ((card_2 - 1) % 13) + 1;
+	int val3 = ((card_3 - 1) % 13) + 1;
+	int val4 = ((card_4 - 1) % 13) + 1;
+	int val5 = ((card_5 - 1) % 13) + 1;
+
+	// Проверяем все возможные комбинации трёх одинаковых значений
+	return
+		// Вариант 1: val1, val2, val3 равны
+		(val1 == val2 && val2 == val3) ||
+
+		// Вариант 2: val1, val2, val4 равны
+		(val1 == val2 && val2 == val4) ||
+
+		// Вариант 3: val1, val2, val5 равны
+		(val1 == val2 && val2 == val5) ||
+
+		// Вариант 4: val1, val3, val4 равны
+		(val1 == val3 && val3 == val4) ||
+
+		// Вариант 5: val1, val3, val5 равны
+		(val1 == val3 && val3 == val5) ||
+
+		// Вариант 6: val1, val4, val5 равны
+		(val1 == val4 && val4 == val5) ||
+
+		// Вариант 7: val2, val3, val4 равны
+		(val2 == val3 && val3 == val4) ||
+
+		// Вариант 8: val2, val3, val5 равны
+		(val2 == val3 && val3 == val5) ||
+
+		// Вариант 9: val2, val4, val5 равны
+		(val2 == val4 && val4 == val5) ||
+
+		// Вариант 10: val3, val4, val5 равны
+		(val3 == val4 && val4 == val5);
 }
 
 /**
@@ -419,7 +463,38 @@ static bool check_three_of_a_kind() {
 static bool check_two_pair() {
 	// Две пары – например, два туза и две восьмёрки
 
-	return false;
+	int val1 = ((card_1 - 1) % 13) + 1;
+	int val2 = ((card_2 - 1) % 13) + 1;
+	int val3 = ((card_3 - 1) % 13) + 1;
+	int val4 = ((card_4 - 1) % 13) + 1;
+	int val5 = ((card_5 - 1) % 13) + 1;
+
+	// Проверяем все возможные комбинации двух пар
+	return
+		// Вариант 1: val1 == val2 и val3 == val4 (остальные разные)
+		(val1 == val2 && val3 == val4 && val1 != val3 && val1 != val5 && val3 != val5) ||
+
+		// Вариант 2: val1 == val2 и val4 == val5
+		(val1 == val2 && val4 == val5 && val1 != val3 && val1 != val4 && val3 != val4) ||
+
+		// Вариант 3: val1 == val2 и val3 == val5
+		(val1 == val2 && val3 == val5 && val1 != val3 && val1 != val4 && val3 != val4) ||
+
+		// Вариант 4: val1 == val3 и val2 == val4
+		(val1 == val3 && val2 == val4 && val1 != val2 && val1 != val5 && val2 != val5) ||
+
+		// ... и так далее для всех возможных комбинаций
+		(val1 == val3 && val2 == val5 && val1 != val2 && val1 != val4 && val2 != val4) ||
+
+		(val1 == val4 && val2 == val3 && val1 != val2 && val1 != val5 && val2 != val5) ||
+
+		(val1 == val4 && val2 == val5 && val1 != val2 && val1 != val3 && val2 != val3) ||
+
+		(val1 == val5 && val2 == val3 && val1 != val2 && val1 != val4 && val2 != val4) ||
+
+		(val1 == val5 && val2 == val4 && val1 != val2 && val1 != val3 && val2 != val3) ||
+
+		(val2 == val3 && val4 == val5 && val1 != val2 && val1 != val4 && val2 != val4);
 }
 
 /**
@@ -430,7 +505,16 @@ static bool check_two_pair() {
 static bool check_pair() {
 	// Пара – две карты одного достоинства
 
-	return false;
+	int val1 = ((card_1 - 1) % 13) + 1;
+	int val2 = ((card_2 - 1) % 13) + 1;
+	int val3 = ((card_3 - 1) % 13) + 1;
+	int val4 = ((card_4 - 1) % 13) + 1;
+	int val5 = ((card_5 - 1) % 13) + 1;
+
+	return val1 == val2 || val1 == val3 || val1 == val4 || val1 == val5 ||
+		val2 == val3 || val2 == val4 || val2 == val5 ||
+		val3 == val4 || val3 == val5 ||
+		val4 == val5;
 }
 
 void show_result() {
